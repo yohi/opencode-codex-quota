@@ -41,7 +41,7 @@ function parseRateLimitWindow(
   const resetsAt = parseInt(headers[resetsAtHeader] || "", 10);
 
   const hasData = 
-    usedPercent !== 0 ||
+    !Number.isNaN(usedPercent) ||
     (!Number.isNaN(windowMinutes) && windowMinutes !== 0) ||
     !Number.isNaN(resetsAt);
 
