@@ -24,7 +24,7 @@ export function formatCompactQuotaStatus(snapshot: RateLimitSnapshot): string {
 }
 
 function formatWindow(window: RateLimitWindow): string {
-  const percentage = Math.round(window.usedPercent);
+  const percentage = Math.round(Math.max(0, 100 - window.usedPercent));
   const percentDisplay = formatPercentage(percentage);
 
   const resetDisplay = window.resetsAt
