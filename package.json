@@ -1,6 +1,6 @@
 {
   "name": "@yohi/opencode-codex-quota",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Display OpenAI Codex rate limit status in OpenCode TUI",
   "main": "dist/index.js",
