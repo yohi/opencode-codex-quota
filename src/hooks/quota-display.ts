@@ -1,5 +1,8 @@
 import type { PluginInput } from "@opencode-ai/plugin";
-import { fetchCodexUsage } from "../api/codex-client.js";
+import {
+  fetchCodexUsage,
+  isCodexAuthExpiredError,
+} from "../api/codex-client.js";
 import { formatCompactQuotaStatus } from "../ui/compact-formatter.js";
 
 interface ToolExecuteInput {
@@ -38,6 +41,17 @@ export function createQuotaDisplayHook(client: PluginInput["client"]) {
         },
       });
     } catch (error) {
+      if (isCodexAuthExpiredError(error)) {
+        client.tui.showToast({
+          body: {
+            message:
+              "Codex認証トークンが期限切れです。`codex auth login` を実行してください。",
+            variant: "warning",
+          },
+        });
+        return;
+      }
+
       console.error("Failed to display Codex quota:", error);
       return;
     }

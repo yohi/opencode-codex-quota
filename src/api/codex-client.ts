@@ -9,6 +9,25 @@ import { loadCodexCliAuth } from "../auth/codex-cli-auth.js";
 const CHATGPT_API_BASE = "https://chatgpt.com/backend-api";
 const CODEX_API_BASE = "https://api.openai.com";
 
+export class CodexAuthExpiredError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CodexAuthExpiredError";
+  }
+}
+
+interface CodexApiErrorPayload {
+  error?: {
+    code?: string | null;
+    message?: string | null;
+  };
+  status?: number | null;
+}
+
+export function isCodexAuthExpiredError(error: unknown): boolean {
+  return error instanceof CodexAuthExpiredError;
+}
+
 export async function fetchCodexUsage(
   baseUrl: string = CHATGPT_API_BASE,
   accessToken?: string,
@@ -48,6 +67,15 @@ export async function fetchCodexUsage(
 
   if (!response.ok) {
     const errorText = await response.text();
+    const parsed = parseCodexErrorPayload(errorText);
+    const errorCode = parsed?.error?.code ?? null;
+
+    if (response.status === 401 && errorCode === "token_expired") {
+      throw new CodexAuthExpiredError(
+        "Codex認証トークンの有効期限が切れています。`codex auth login` を実行してください。"
+      );
+    }
+
     throw new Error(
       `Failed to fetch Codex usage: ${response.status} - ${errorText}`
     );
@@ -82,6 +110,23 @@ function transformPayloadToSnapshot(
     credits,
     planType: payload.plan_type || null,
   };
+}
+
+function parseCodexErrorPayload(errorText: string): CodexApiErrorPayload | null {
+  if (!errorText) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(errorText) as CodexApiErrorPayload;
+    if (parsed && typeof parsed === "object") {
+      return parsed;
+    }
+  } catch (error) {
+    console.warn("Failed to parse Codex error payload", error);
+  }
+
+  return null;
 }
 
 function transformWindow(
