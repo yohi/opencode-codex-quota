@@ -140,6 +140,12 @@ npm run dev
 npm run clean
 ```
 
+### リリース
+
+このプロジェクトは Conventional Commits に基づいて `release-please` によるリリースが自動化されています。
+コミットメッセージには `feat:`, `fix:`, `chore:` などのプレフィックスを使用してください。
+`master` ブランチへのプッシュ時に自動的にリリースプルリクエストが作成・更新され、マージされると新しいバージョンが GitHub Packages に公開され、GitHub Release が作成されます。
+
 ## 仕組み (How It Works)
 
 このプラグインは Codex API からレートリミットデータを取得します：
